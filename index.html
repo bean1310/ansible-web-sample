@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON to HTML List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .task-list, .stats-list {
+            margin-bottom: 20px;
+        }
+        .task-item, .stats-item {
+            margin: 5px 0;
+        }
+        .summary {
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .details {
+            display: none;
+            margin-left: 20px;
+        }
+        .host-name {
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+        }
+        .host-name:hover {
+            color: darkblue;
+        }
+        .host-section {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Playbook Summary</h1>
+    <div id="summary" class="summary"></div>
+
+    <h2>Hosts</h2>
+    <div id="hosts" class="task-list"></div>
+
+    <h2>Stats</h2>
+    <div id="stats" class="stats-list"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
