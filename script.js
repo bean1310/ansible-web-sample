@@ -1,103 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Sample JSON data
-    const jsonData = {
-        "plays": [
-            {
-                "name": "Sample Playbook for Multiple Hosts",
-                "hosts": [
-                    "host1",
-                    "host2",
-                    "host3",
-                    "host4",
-                    "host5"
-                ],
-                "tasks": [
-                    {
-                        "name": "Print a message",
-                        "hosts": {
-                            "host1": {
-                                "ok": true,
-                                "msg": "Hello from host1!"
-                            },
-                            "host2": {
-                                "ok": true,
-                                "msg": "Hello from host2!"
-                            },
-                            "host3": {
-                                "ok": true,
-                                "msg": "Hello from host3!"
-                            },
-                            "host4": {
-                                "ok": true,
-                                "msg": "Hello from host4!"
-                            },
-                            "host5": {
-                                "ok": true,
-                                "msg": "Hello from host5!"
-                            }
-                        }
-                    },
-                    {
-                        "name": "Create a file",
-                        "hosts": {
-                            "host1": {
-                                "changed": true,
-                                "path": "/tmp/sample_file_host1.txt"
-                            },
-                            "host2": {
-                                "changed": true,
-                                "path": "/tmp/sample_file_host2.txt"
-                            },
-                            "host3": {
-                                "changed": true,
-                                "path": "/tmp/sample_file_host3.txt"
-                            },
-                            "host4": {
-                                "changed": true,
-                                "path": "/tmp/sample_file_host4.txt"
-                            },
-                            "host5": {
-                                "changed": true,
-                                "path": "/tmp/sample_file_host5.txt"
-                            }
-                        }
-                    }
-                ]
-            }
-        ],
-        "stats": {
-            "host1": {
-                "ok": 1,
-                "changed": 1,
-                "failed": 0,
-                "skipped": 0
-            },
-            "host2": {
-                "ok": 1,
-                "changed": 1,
-                "failed": 0,
-                "skipped": 0
-            },
-            "host3": {
-                "ok": 1,
-                "changed": 1,
-                "failed": 0,
-                "skipped": 0
-            },
-            "host4": {
-                "ok": 1,
-                "changed": 1,
-                "failed": 0,
-                "skipped": 0
-            },
-            "host5": {
-                "ok": 1,
-                "changed": 1,
-                "failed": 0,
-                "skipped": 0
-            }
-        }
-    };
+    // Function to fetch JSON data
+    function fetchData() {
+        return fetch('data.json')
+            .then(response => response.json())
+            .catch(error => console.error('Error fetching data:', error));
+    }
 
     // Function to create a summary
     function displaySummary(stats) {
@@ -128,6 +35,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to create a list of hosts
     function displayHosts(tasks) {
         const hostsContainer = document.getElementById('hosts');
+        hostsContainer.innerHTML = ''; // Clear existing content
+
         const hostsData = {};
 
         // Aggregate tasks for each host
@@ -150,7 +59,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const hostName = document.createElement('p');
             hostName.className = 'host-name';
-            hostName.textContent = host;
+
+            const statusIcon = document.createElement('span');
+            statusIcon.className = 'status-icon';
+            const allTasksFailed = hostsData[host].some(detail => detail.failed);
+            statusIcon.textContent = allTasksFailed ? '❌' : '✅';
+
+            hostName.appendChild(statusIcon);
+            hostName.appendChild(document.createTextNode(host));
             hostSection.appendChild(hostName);
 
             const detailsContainer = document.createElement('div');
@@ -158,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             hostsData[host].forEach(detail => {
                 const detailItem = document.createElement('div');
-                detailItem.innerHTML = `<strong>${detail.taskName}</strong>: ${detail.ok ? 'OK' : 'Failed'}, ${detail.msg || 'Path: ' + detail.path}`;
+                detailItem.innerHTML = `<strong>${detail.taskName}</strong>: ${detail.failed ? 'Failed' : (detail.ok ? 'OK' : 'Changed')}, ${detail.msg || 'Path: ' + detail.path}`;
                 detailsContainer.appendChild(detailItem);
             });
 
@@ -170,6 +86,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 detailsContainer.style.display = detailsContainer.style.display === 'none' ? 'block' : 'none';
             });
         });
+
+        // Filter hosts based on the current view
+        filterHosts();
+    }
+
+    // Function to filter hosts based on the current view
+    function filterHosts() {
+        const allHostSections = document.querySelectorAll('.host-section');
+        allHostSections.forEach(section => {
+            const statusIcon = section.querySelector('.status-icon').textContent;
+            if (showFailuresOnly && statusIcon === '✅') {
+                section.style.display = 'none';
+            } else {
+                section.style.display = 'block';
+            }
+        });
     }
 
     // Function to create a list from stats
@@ -178,15 +110,33 @@ document.addEventListener('DOMContentLoaded', function() {
         Object.keys(stats).forEach(host => {
             const statsItem = document.createElement('div');
             statsItem.className = 'stats-item';
-            statsItem.innerHTML = `<span class="host-name">${host}</span>: OK=${stats[host].ok}, Changed=${stats[host].changed}, Failed=${stats[host].failed}, Skipped=${stats[host].skipped}`;
+            statsItem.innerHTML = `<span class="material-icons">info</span><span class="host-name">${host}</span>: OK=${stats[host].ok}, Changed=${stats[host].changed}, Failed=${stats[host].failed}, Skipped=${stats[host].skipped}`;
             statsContainer.appendChild(statsItem);
         });
     }
 
-    // Display the summary, hosts, and stats
-    displaySummary(jsonData.stats);
-    jsonData.plays.forEach(play => {
-        displayHosts(play.tasks);
+    // Fetch JSON data and display
+    fetchData().then(jsonData => {
+        // Display the summary, hosts, and stats
+        displaySummary(jsonData.stats);
+        jsonData.plays.forEach(play => {
+            displayHosts(play.tasks);
+        });
+        displayStats(jsonData.stats);
+
+        // Button event listeners
+        document.getElementById('showAll').addEventListener('click', () => {
+            showFailuresOnly = false;
+            document.getElementById('showAll').classList.add('active');
+            document.getElementById('showFailures').classList.remove('active');
+            filterHosts();
+        });
+
+        document.getElementById('showFailures').addEventListener('click', () => {
+            showFailuresOnly = true;
+            document.getElementById('showFailures').classList.add('active');
+            document.getElementById('showAll').classList.remove('active');
+            filterHosts();
+        });
     });
-    displayStats(jsonData.stats);
 });

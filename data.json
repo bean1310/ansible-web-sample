@@ -1,0 +1,98 @@
+{
+    "plays": [
+        {
+            "name": "Sample Playbook for Multiple Hosts",
+            "hosts": [
+                "host1",
+                "host2",
+                "host3",
+                "host4",
+                "host5"
+            ],
+            "tasks": [
+                {
+                    "name": "Print a message",
+                    "hosts": {
+                        "host1": {
+                            "ok": true,
+                            "msg": "Hello from host1!"
+                        },
+                        "host2": {
+                            "ok": true,
+                            "msg": "Hello from host2!"
+                        },
+                        "host3": {
+                            "ok": true,
+                            "msg": "Hello from host3!"
+                        },
+                        "host4": {
+                            "ok": true,
+                            "msg": "Hello from host4!"
+                        },
+                        "host5": {
+                            "ok": true,
+                            "msg": "Hello from host5!"
+                        }
+                    }
+                },
+                {
+                    "name": "Create a file",
+                    "hosts": {
+                        "host1": {
+                            "changed": true,
+                            "path": "/tmp/sample_file_host1.txt"
+                        },
+                        "host2": {
+                            "changed": true,
+                            "path": "/tmp/sample_file_host2.txt"
+                        },
+                        "host3": {
+                            "changed": true,
+                            "path": "/tmp/sample_file_host3.txt"
+                        },
+                        "host4": {
+                            "changed": true,
+                            "path": "/tmp/sample_file_host4.txt"
+                        },
+                        "host5": {
+                            "changed": true,
+                            "path": "/tmp/sample_file_host5.txt"
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "stats": {
+        "host1": {
+            "ok": 1,
+            "changed": 1,
+            "failed": 0,
+            "skipped": 0
+        },
+        "host2": {
+            "ok": 1,
+            "changed": 1,
+            "failed": 0,
+            "skipped": 0
+        },
+        "host3": {
+            "ok": 1,
+            "changed": 1,
+            "failed": 1,
+            "skipped": 0
+        },
+        "host4": {
+            "ok": 1,
+            "changed": 1,
+            "failed": 0,
+            "skipped": 0
+        },
+        "host5": {
+            "ok": 1,
+            "changed": 1,
+            "failed": 0,
+            "skipped": 0
+        }
+    }
+}
